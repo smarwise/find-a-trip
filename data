@@ -1,0 +1,6 @@
+{
+ "client_id": "7fe6814d-26f5-4f5b-aa5c-e180f46757d4",
+ "client_secret": "c0S4/f135fOOLhiRwMQEZhprh9shVxEniBUvVphtlAc=",
+ "grant_type": "client_credentials",
+ "scope": "transport:all"
+}
