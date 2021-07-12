@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { MatGridListModule} from '@angular/material/grid-list';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';  
 import { AppComponent } from './app.component';
 import { TripComponent } from './trip/trip.component';
 
@@ -26,6 +27,7 @@ import { TripComponent } from './trip/trip.component';
     MatGridListModule,
     MatIconModule,
     MatListModule,
+    MatTableModule
     ],
   providers: [],
   bootstrap: [AppComponent]

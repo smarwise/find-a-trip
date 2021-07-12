@@ -1,27 +1,36 @@
 import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-// import { DatePipe } from '@angular/common';
 
 export class Trip{
   constructor(
     public id: string,
     public href: string,
-    public name: string,
-    public code: string,
-    public color: string,
+    public geometry: JSON,
+    public fareProducts: string[],
 
-    private defaultOnlyAgencies: string  = "",
-    private defaultOmitAgencies: string  = "",
-    private defaultFareProducts: string = "",
-    private time: Date = new Date(),
-    private defaultProfile: string = "ClosestToTime",
-    private defaultStartLatitude: number  = -25.747562,
-    private defaultStartLongitude: number  = 28.236323,
-    private defaultEndLatitude: number  = -26.195135,
-    private defaultEndLongitude: number  = 28.036299,
-    private defaultAt: Date
+    public itineraries: Itinerary[]
   ) {
   } 
+}
+
+export class Itinerary{
+  constructor(
+  public id:	number,
+  public href: string,
+  public departureTime:	Date,
+  public arrivalTime: 	Date,
+  public distance:	number,
+  public duration:	number,
+ ){}}
+
+export class Journey{
+  constructor(
+  public type: string,
+  public distance: number,
+  public duration: number,
+  public vehicle: string,
+  public fare: number
+  ){}
 }
 
 @Component({
@@ -32,9 +41,18 @@ export class Trip{
 
 export class TripComponent implements OnInit {
 
+  testData = [
+   {"type": "bus", "duration": "10", "fare": "$10"}, 
+   {"type": "rail", "duration": "4", "fare": "$50"}, 
+   {"type": "bus", "duration": "25", "fare": "$20"}, 
+  ]
+
   title = 'Trips';
   trips: Trip[] = [];
+  iteneraries: Itinerary[] = [];
+  journeys: Journey[] = [];
   accessToken: string = "";
+  columnsToDisplay = ["type", "duration", "fare"];
   headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
   token_headers = new HttpHeaders();
   params = new HttpParams();
@@ -75,16 +93,35 @@ export class TripComponent implements OnInit {
     });
   }
 
- async   getTrips(){
+getTrips(){
     this.token_headers = this.token_headers.append('Authorization', ["Bearer " + this.accessToken]);
     this.token_headers = this.token_headers.append('Content-Type', 'application/json')
   
     this.httpClient.post<any>('https://platform.whereismytransport.com/api/journeys'
   ,this.body, {headers: this.token_headers}).subscribe(
       response => {
-      // this.trips= response;
+      // this.trips = response.data;
+      Object.assign(this.trips, response);
+      Object.assign(this.iteneraries, response.itineraries)
+      console.log(this.iteneraries);
       console.log(response);
+      this.getJourneys();
       }
     );
   }
+
+getJourneys(){
+  this.iteneraries.forEach((itinerary) =>
+  {
+    this.httpClient.get<any>(itinerary.href, {headers: this.token_headers}).subscribe(
+      response => {
+        this.journeys.push(response.legs[0]);
+        console.log(this.journeys);
+      } , (err) => {
+        console.log(err);
+      });
+  });
+  console.log(this.journeys);
+}
+
 }
