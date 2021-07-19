@@ -3,16 +3,16 @@
   <title>Find-a-Trip</title>
 <h1>{{title}}</h1>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:300,400,500,700">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
 </head>
-
-<mat-toolbar style="background: linear-gradient(to right,rgb(52, 150, 216), rgb(52, 70, 170))">
-  <span color="white"> Find-a-Trip</span>
+<mat-toolbar class="app-toolbar"><!-- style="background: linear-gradient(to right,#39603D, rgb(19, 105, 33))"> -->
+  <!-- <span color="white"> Find-a-Trip</span> -->
+  <img class="img-fluid" src={{logo}}>
   <span class="spacer"></span>
   <button mat-button [matMenuTriggerFor]="menu">
     <mat-icon>more_vert</mat-icon>
   </button>
-  <mat-menu #menu="matMenu">
+  <mat-menu style="display: flex" #menu="matMenu">
     <button mat-menu-item>
       <mat-icon>fingerprint</mat-icon>
       <span>Login</span>
@@ -30,9 +30,9 @@
 
 <br>
 
-<mat-form-field>
+<mat-form-field class="search">
   <mat-select width="30%"
-      [(value)]="selected1" placeholder="Start">
+      [(ngModel)]="selected1" placeholder="Start" (valueChange)="onSelection()">
     <mat-option
         *ngFor="let stop of stops"
         value="{{ stop.key }}">
@@ -42,7 +42,7 @@
 </mat-form-field>
 <mat-form-field>
   <mat-select
-      [(value)]="selected2" placeholder="Destination">
+      [(ngModel)]="selected2" placeholder="Destination" (valueChange)="onSelection()">
     <mat-option
         *ngFor="let stop of stops"
         value="{{ stop.key }}">
@@ -51,31 +51,27 @@
   </mat-select>
 </mat-form-field>
 
-<br>
-
-  <div class="trips" align="center">
-  <mat-table table-responsive-mat [dataSource] = "testData" *ngIf="testData.length > 0" mat-elevation-z8>
-
+  <div class="journeys">
+  <mat-table table-responsive-mat [dataSource] = "testData" *ngIf="testData.length > 0" class="mat-elevation-z8 rows">
     <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef> Mode </th>
+      <mat-header-cell *matHeaderCellDef> Mode </mat-header-cell>
       <!-- <mat-icon fas icon="leaf" class="mr-2 blue-text" aria-hidden="true">Lorem</mat-icon> -->
       <!-- <i class="material-icons" mat-cell *matCellDef="let journey">{{modeIcon(journey.type)}}</i> {{journey.type}} -->
-      <td mat-cell *matCellDef="let journey"> {{journey.type}} </td>
+      <mat-cell *matCellDef="let journey"> {{journey.type}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="duration">
-      <th mat-header-cell *matHeaderCellDef> Duration </th>
-      <td mat-cell *matCellDef="let journey"> {{journey.duration}} </td>
+      <mat-header-cell *matHeaderCellDef> Duration </mat-header-cell>
+      <mat-cell *matCellDef="let journey"> {{journey.duration}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="fare">
-      <th mat-header-cell *matHeaderCellDef> Fare </th>
-      <td mat-cell *matCellDef="let journey"> {{journey.fare}} </td>
+      <mat-header-cell *matHeaderCellDef> Fare </mat-header-cell>
+      <mat-cell *matCellDef="let journey"> {{journey.fare}} </mat-cell>
     </ng-container>
 
    
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
-    
+    <mat-header-row *matHeaderRowDef="columnsToDisplay"></mat-header-row>
+    <mat-row [style.border-bottom]="'3px solid black'" *matRowDef="let row; columns: columnsToDisplay"></mat-row>
   </mat-table>
 </div>
