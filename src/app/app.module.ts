@@ -5,8 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import {MatToolbarModule} from '@angular/material/toolbar'; 
-// import { MaterialModule } from '@angular/material';
-import 'hammerjs';
+// import 'hammerjs';
 
 import { MatGridListModule} from '@angular/material/grid-list';
 import {MatIconModule} from '@angular/material/icon';

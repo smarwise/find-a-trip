@@ -31,8 +31,8 @@
 <br>
 
 <mat-form-field class="search">
-  <mat-select width="30%"
-      [(ngModel)]="selected1" placeholder="Start" (valueChange)="onSelection()">
+  <mat-select
+      [(ngModel)]="selected1" placeholder="Start" (selectionChange)="onSelection($event)">
     <mat-option
         *ngFor="let stop of stops"
         value="{{ stop.key }}">
@@ -42,7 +42,7 @@
 </mat-form-field>
 <mat-form-field>
   <mat-select
-      [(ngModel)]="selected2" placeholder="Destination" (valueChange)="onSelection()">
+      [(ngModel)]="selected2" placeholder="Destination" (selectionChange)="onSelection($event)">
     <mat-option
         *ngFor="let stop of stops"
         value="{{ stop.key }}">
@@ -52,7 +52,7 @@
 </mat-form-field>
 
   <div class="journeys">
-  <mat-table table-responsive-mat [dataSource] = "testData" *ngIf="testData.length > 0" class="mat-elevation-z8 rows">
+  <mat-table table-responsive-mat [dataSource] = "journeys" *ngIf="journeys.length > 0" class="mat-elevation-z8 rows">
     <ng-container matColumnDef="type">
       <mat-header-cell *matHeaderCellDef> Mode </mat-header-cell>
       <!-- <mat-icon fas icon="leaf" class="mr-2 blue-text" aria-hidden="true">Lorem</mat-icon> -->

@@ -1,5 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { MatSelectChange } from '@angular/material/select';
+import { MatTableDataSource } from '@angular/material/table';
 
 export class Trip{
   constructor(
@@ -41,13 +43,13 @@ export class Journey{
 
 export class TripComponent implements OnInit {
 
-  testData = [
-   {"type": "Bus", "duration": "10", "fare": "$10"}, 
-   {"type": "Rail", "duration": "4", "fare": "$50"}, 
-   {"type": "Bus", "duration": "25", "fare": "$20"}, 
-   {"type": "Bus", "duration": "10", "fare": "$10"}, 
-   {"type": "Rail", "duration": "4", "fare": "$50"}
-  ]
+  // testData = [
+  //  {"type": "Bus", "duration": "10", "fare": "$10"}, 
+  //  {"type": "Rail", "duration": "4", "fare": "$50"}, 
+  //  {"type": "Bus", "duration": "25", "fare": "$20"}, 
+  //  {"type": "Bus", "duration": "10", "fare": "$10"}, 
+  //  {"type": "Rail", "duration": "4", "fare": "$50"}
+  // ]
 
   // menu = ["no", "star"];
 
@@ -60,18 +62,15 @@ export class TripComponent implements OnInit {
   selected2 = "Johannesburg";
   selected1 = "Randburg";
   logo = "../../assets/images/logo.png";
-  // sourceLongitude =  27.99587;
-  // sourceLatitude = -26.14369;
-  // destLongitude = 28.04228;
-  // destLatitude = -26.20652;
-  sourceLongitude =  18.425635578195614; 
-  sourceLatitude = -33.92615856801032;
-  destLongitude = 18.428173926320085;
-  destLatitude = -33.93950185556978; 
+  sourceLongitude =  18.37755;
+  sourceLatitude = -33.94393;
+  destLongitude = 18.41489;
+  destLatitude = -33.91252;
+  body = {};
 
 
-  stops = [{"key": "Johannesburg", "longitude":28.0473, "latitude": -26.206664},
-  {"key": "Centurion", "longitude":28.0889, "latitude": 25.8640},
+  stops = [{"key": "Johannesburg", "longitude":28.041944, "latitude": -26.197222},
+  {"key": "Centurion", "longitude":28.18957, "latitude": 25.851210},
   {"key": "Kempton Park", "longitude":28.2337, "latitude": 26.1084},
   {"key": "Fourways", "longitude":28.056702, "latitude": -26.107567},
   {"key": "Rosebank", "longitude":18.4742, "latitude": -33.9556},
@@ -84,7 +83,64 @@ export class TripComponent implements OnInit {
   token_headers = new HttpHeaders()
 ;
   params = new HttpParams();
-  body = {
+
+
+
+
+  constructor(
+    private httpClient: HttpClient
+    ){}
+
+  ngOnInit(){
+    this.getAccessToken();
+  }
+
+  getAccessToken(){
+    this.httpClient.post<any>('https://identity.whereismytransport.com/connect/token', "client_id=7fe6814d-26f5-4f5b-aa5c-e180f46757d4&client_secret=c0S4%2Ff135fOOLhiRwMQEZhprh9shVxEniBUvVphtlAc%3D&grant_type=client_credentials&scope=transportapi%3Aall", 
+    {headers: this.headers}).subscribe(
+      response => {
+        this.accessToken = response.access_token;
+        this.getTrips();
+      }
+    , (err) => {
+      console.log(err);
+    });
+  }
+
+getTrips(){
+    this.setBody();
+    this.token_headers = this.token_headers.append('Authorization', ["Bearer " + this.accessToken]);
+    this.token_headers = this.token_headers.append('Content-Type', 'application/json');
+    this.token_headers = this.token_headers.append('Accept', 'application/json');
+  
+    console.log(this.body);
+    this.httpClient.post<any>('https://platform.whereismytransport.com/api/journeys'
+  ,this.body, {headers: this.token_headers}).subscribe(
+      response => {
+      Object.assign(this.trips, response);
+      Object.assign(this.iteneraries, response.itineraries);
+      console.log(response);
+      this.getJourneys();
+      }
+    );
+  }
+
+getJourneys(){
+  this.iteneraries.forEach((itinerary) =>
+  {
+    this.httpClient.get<any>(itinerary.href, {headers: this.token_headers}).subscribe(
+      response => {
+        this.journeys.push(response.legs[0]);
+         console.log("journeys: ");
+        console.log(this.journeys);
+      } , (err) => {
+        console.log(err);
+      });
+  });
+}
+
+setBody(){
+  this.body = {
     "geometry": {
         "type": "MultiPoint",
         "coordinates": [
@@ -98,61 +154,9 @@ export class TripComponent implements OnInit {
                 this.destLatitude
             ]
         ]
-    }
+    },
+    "maxItineraries": 5
 };
-
-  constructor(
-    private httpClient: HttpClient
-    ){}
-
-  ngOnInit(){
-    // this.getAccessToken();
-    // this.httpClient.get<any>("https://platform.whereismytransport.com/api/agencies")
-  }
-
-  getAccessToken(){
-    console.log(this.selected1+this.selected2);
-    this.httpClient.post<any>('https://identity.whereismytransport.com/connect/token', "client_id=7fe6814d-26f5-4f5b-aa5c-e180f46757d4&client_secret=c0S4%2Ff135fOOLhiRwMQEZhprh9shVxEniBUvVphtlAc%3D&grant_type=client_credentials&scope=transportapi%3Aall", 
-    {headers: this.headers}).subscribe(
-      response => {
-        this.accessToken = response.access_token;
-        this.getTrips();
-      }
-    , (err) => {
-      console.log(err);
-    });
-  }
-
-getTrips(){
-  console.log(this.body);
-    this.token_headers = this.token_headers.append('Authorization', ["Bearer " + this.accessToken]);
-    this.token_headers = this.token_headers.append('Content-Type', 'application/json')
-  
-    this.httpClient.post<any>('https://platform.whereismytransport.com/api/journeys'
-  ,this.body, {headers: this.token_headers}).subscribe(
-      response => {
-      // this.trips = response.data;
-      Object.assign(this.trips, response);
-      Object.assign(this.iteneraries, response.itineraries)
-      console.log(this.iteneraries);
-      console.log(response);
-      this.getJourneys();
-      }
-    );
-  }
-
-getJourneys(){
-  this.iteneraries.forEach((itinerary) =>
-  {
-    this.httpClient.get<any>(itinerary.href, {headers: this.token_headers}).subscribe(
-      response => {
-        this.journeys.push(response.legs[0]);
-        console.log(this.journeys);
-      } , (err) => {
-        console.log(err);
-      });
-  });
-  console.log(this.journeys);
 }
 
 modeIcon(mode: string): string {
@@ -162,9 +166,24 @@ modeIcon(mode: string): string {
   return ("rowing");
 }
 
-onSelection(){
+onSelection(event: MatSelectChange){
   console.log(this.selected1 + this.selected2);
-  // this.getAccessToken();
+  this.stops.filter((x) => {
+    if (x.key === this.selected1) {
+      this.sourceLongitude = x.longitude;
+      this.sourceLatitude = x.latitude;
+    }
+  });
+  this.stops.filter((x) => {
+    if (x.key === this.selected2) {
+      this.destLongitude = x.longitude;
+      this.destLatitude = x.latitude;
+    }
+  });
+  this.journeys = [];
+  this.token_headers = new HttpHeaders();
+  this.iteneraries = [];
+  this.getAccessToken();
 }
 
 }
